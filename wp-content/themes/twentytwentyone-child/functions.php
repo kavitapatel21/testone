@@ -20,6 +20,7 @@ function invio_mail(){
 	$phn=$_POST['phno'];
 	$comment=$_POST['comment'];
 	$to = $_POST['email'];
+  //$to.= 'Bcc: <'. get_bloginfo('admin_email') . '>'. "\r\n";
 	$body  = 'From: admin' ;
 	$body .="<html>
 	<body>
@@ -30,7 +31,10 @@ function invio_mail(){
 	<body>
 	</html>";
 	$headers = array('Content-Type: text/html; charset=UTF-8','From: kavita <kavita@plutustec.com>');
-		wp_mail( $to, $subject, $body, $headers );
+	wp_mail( $to, $subject, $body, $headers );
+  $admin_email = get_option( 'admin_email' );
+  //echo $admin_email;
+  wp_mail($admin_email,$subject, $body, $headers);
   exit();
 }
 add_action( 'wp_ajax_sendmail', 'invio_mail' );
@@ -138,17 +142,16 @@ function display_data()
          $tablename = $wpdb->prefix."customtable";
   $entries = $wpdb->get_results("SELECT * FROM ".$tablename." order by id asc ");
   $total_rows = $wpdb->num_rows;
-  if (!isset ($_GET['paged']) ) {  
-    $page_number = 1;  
-} else {  
-    $page_number = $_GET['paged'];   
-} 
+ // print_r($_GET);
+ $page_number=(get_query_var('paged')) ? get_query_var('paged') : 1;
+//echo $page_number;
 $limit = 3;  // variable to store the number of rows per page  
 $offset = ($page_number - 1) * $limit;  // get the initial page number
 //echo $offset;
 $total_pages = ceil ($total_rows / $limit);   // get the required number of pages
 //echo $total_pages;
 $entriesList = $wpdb->get_results("SELECT * FROM ".$tablename." order by id asc LIMIT " . $offset . ',' . $limit);
+//echo $wpdb->last_query;
     ?>
        <div class="col-12">
       <table class="table table-bordered">
@@ -197,7 +200,7 @@ $tag = '<div class="pagination">' . PHP_EOL;
 $tag .= paginate_links( array(
         'base'              => str_replace( $search_for, $replace_with, esc_url( get_pagenum_link( $big ) ) ),
         'format'            => '?paged=%#%',
-        'current'           => max( 1, get_query_var('paged') ),
+        'current'           =>  max( 1, get_query_var('paged') ),
         'total'             => $total_pages,
         'prev_next'         => True,
         'prev_text'         => __('«'),
@@ -211,4 +214,16 @@ echo $tag;
 }
 ?>
 
+<?php
 
+//include "../../../wp-load.php";
+
+//$headers = "MIME-Version: 1.0" . "\r\n";
+//$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+//$headers .= 'From: <example@gmail.com>' . "\r\n";
+//$headers .= 'Bcc: <'. get_bloginfo('admin_email') . '>'. "\r\n";
+
+
+//mail("example2@gmail.com","Form Application",$admin_email_body,$headers);*/
+
+?>
